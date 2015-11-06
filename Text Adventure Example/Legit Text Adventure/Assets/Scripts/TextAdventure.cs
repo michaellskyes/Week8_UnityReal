@@ -8,12 +8,15 @@ public class TextAdventure : MonoBehaviour {
 
 	[Header("Audio stuff")]
 
+
+
 	public AudioSource bgm;
-	public AudioClip bgm_win;
+	public AudioClip scaryMusic;
 
 	public AudioSource sfx;
 	public AudioClip sfx_keyGet;
 	public AudioClip sfx_partyHorn;
+	public AudioClip sfx_bgmWin;
 
 
 	[Header("rooms")]
@@ -215,12 +218,12 @@ public class TextAdventure : MonoBehaviour {
 
 			if (!won)
 			{
-				sfx.volume = .5f;
-				sfx.PlayOneShot(sfx_partyHorn);
+				sfx.clip = sfx_bgmWin;
+				sfx.Play();
 				won = true;
 			}
 
-			bgm.clip = bgm_win;
+			bgm.clip = scaryMusic;
 			if(!bgm.isPlaying)
 			{
 				bgm.Play ();
