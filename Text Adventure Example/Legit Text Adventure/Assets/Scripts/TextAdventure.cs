@@ -24,23 +24,20 @@ public class TextAdventure : MonoBehaviour {
 	public string room_east;
 	public string room_west;
 
-	private int currentExperience = 0;
-	private int expToLevel = 10;
-	private int level = 0;
+//	private int currentExperience = 0;
+//	private int expToLevel = 10;
+//	private int level = 0;
 
 	private bool hasKey = false;
 
-	private bool monsterExists = false;
-
+	private bool hasNote = false;
+	
 	private bool roomEntered = false;
 
 	private bool won = false;
 
 	// Use this for initialization
 	void Start () {
-
-
-
 		
 	}
 	
@@ -55,53 +52,96 @@ public class TextAdventure : MonoBehaviour {
 		switch (currentRoom)
 		{
 		
-		case "mine" 
-			textBuffer = "You are in the main mine shaft"
-				"there is a sub shaft on the left and the right"
-				"Press 'N' to go to the left\n"+ 
-					"Press 'M' to go to the right";
-
-
-
-					 
+		case "mineshaft":
+			textBuffer = "The wall structure collapses behind you.\n"+
+				"You are trapped in the mine.\n"+
+				"You are in the main mine shaft.\n"+
+				"It's dark, but you take out a torch.\n"+
+				"There is a sub shaft on the left and the right.\n"+
+				"You can also go deeper in the main mine shaft.";
+			room_west = "blocked off shaft";
+			room_east = "subshaft left";
+			room_north = "deep shaft"; 
 			break;
+
+		case "subshaft left":
+			textBuffer = "This shaft leads you to the workers quarters\n"+
+				"There's a couch in the centers\n" +
+				"that's been disentergrated\n"+
+				"you find a note\n"+
+				"to read it press 'n'";
+
+			room_west = "mineshaft";
+
+					if (Input.GetKeyDown(KeyCode.N))
+				{
+					currentRoom = "note";
+				}
+			
+			room_east = "deep shaft";
+			break;
+
+		case "note":
+			textBuffer = "if you find this note\n"+
+				"get out of the shaft now!\n"+
+				"there was no arson that set the fire\n"+
+				"we dug into an indian burial ground\n"+
+				"people started getting sick...\n"+
+				"they turned agressive and started killing\n" +
+				"each other\n"+
+				"LEAVE NOW";
+
+			if (!hasNote)
+			{
+				hasNote = true;
+				sfx.clip = sfx_keyGet;
+				sfx.Play();
+			}
+
+			room_south = "subshaft left";
+			break;
+
+		case "deep shaft":
+			textBuffer = "You are deeper down the shaft\n"+
+				"You see embers in a fire pit.\n"+
+				"After closer examination, it seems as if\n"+
+				"the fire was put out a few hours ago\n"+
+					"...'is someone living here?'...";
+
+			room_east = "equipment room";
+			room_south = "mineshaft";
+			break;
+
+		case "equipment room":
+			textBuffer = "You find a locker with a broken lock.\n"+
+				"To break it open press 'M'.";
+
+
+			if (Input.GetKeyDown(KeyCode.M))
+			{
+				currentRoom = "got pickaxe";
+			}
+
+			room_east = "deep shaft";
+
+			break; 
 		case "newsPaper":
 			textBuffer = "67 MINERS DIE IN MINE FIRE\n"+
+				"Date October 21st 1952\n"+
 				"Workers inside Zenith Coal Mine were\n"+
-				"burned alive when the mine set a blaze\n"+
+				"burned alive when the mine was set a blaze\n"+
 				"by an arson\n"+
 				"Local authorities could not\n"+
-				"identify a suspect...";+
-				"Press 'N' to return to entrance";
+				"identify a suspect...";
 
-			if (Input.GetKeyDown(KeyCode.N))
-			{
-				currentRoom = "entrance";
-			}
+				room_south = "entrance";
 
 			break;
 		case "entryway":
 			textBuffer = "Welcome to Zenith Coal Mines.\n"+
-				"Time: 2:00 AM";
-
-			if (!roomEntered)
-			{
-				float randomizer;
-				randomizer = Random.Range(0,1.0f);
-				Debug.Log (randomizer);
+				"Date: October 21st 2015 Time: 2:00 AM\n"+
+					"you are a journalist trying to uncover the truth"; 
 				
-				if (randomizer > 0.5f)
-				{
-					monsterExists = true;
-				}
-
-			}
-
-			if (monsterExists)
-			{
-				textBuffer += "There's a monster.\n";
-			}
-
 			room_north = "entrance";
 
 			roomEntered = true;
@@ -123,33 +163,14 @@ public class TextAdventure : MonoBehaviour {
 
 			if(Input.GetKeyDown(KeyCode.M))
 			{
-				currentRoom = "mine";
+				currentRoom = "mineshaft";
 			}
-			//room_south = "entryway";
-			//room_west = "key room";
-			//room_east = "partyRoom";
 			break;
-		case "key room":
-			textBuffer = "You are in a room, that's called \n" +
-				"the key room, for some reason.\n" +
-				"There is a drawer in front of you.\n" +
-				"Press 'm' to open the drawer....\n" +
-					"with your MIND";
 
-			if (Input.GetKeyDown(KeyCode.M))
-			{
-				currentRoom = "got key";
-			}
-
-			room_east = "entrance";
-
-			break;
-		case "got key":
-			textBuffer = "Congratulations. You opened \n" +
-				"the drawer with your mind, and found, inside,\n" +
-				"a snake. And you cut the snake open, which\n" +
-					"is disgusting, but at least you found this key.\n" +
-					"leave. (press any key)";
+		case "got pickaxe":
+			textBuffer = "You find a pickaxe! \n" +
+				"Looks like this might come in handy.\n" +
+					"To leave. (press any key)";
 
 			if (!hasKey)
 			{
@@ -160,38 +181,36 @@ public class TextAdventure : MonoBehaviour {
 
 			if (Input.anyKeyDown)
 			{
-				currentRoom = "key room";
+				currentRoom = "equipment room";
 			}
 					
 			break;
-		case "mine":
-			textBuffer = "You are in the mine.\n";
 
-			room_west = "entrance";
-			room_east = "party room door";
-			break;
-		case "party room door":
-			if (hasKey)
+		case "blocked off shaft":
+			if (hasKey && hasNote)
 			{
-				textBuffer = "you use the key to open the door";
+				textBuffer = "You use the pickaxe to break\n" +
+					"through the debris.";
 
-				room_south = "after party room";
+				room_south = "Exit";
 			} else {
 
-				textBuffer = "The door is locked. \nPress any key to return to the party room.";
+				textBuffer = "This way is blocked by debris,\n"+
+					"you need a pick axe to get through\n"+
+						"press any key to go back";
 
 				if (Input.anyKeyDown)
 				{
-					currentRoom = "partyRoom";
+					currentRoom = "mineshaft";
 				}
 
 			}
 
 			break;
-		case "after party room":
-			textBuffer = "You are in the after party room.\n" +
-				"all of your friends are here.\n" +
-					"you won.";
+		case "Exit":
+			textBuffer = "You made it out alive!\n" +
+				"You have the note, and the truth\n" +
+					"You won!";
 	
 
 			if (!won)
@@ -216,8 +235,7 @@ public class TextAdventure : MonoBehaviour {
 
 		if (room_north != "")
 		{
-			textBuffer += "\n"+"To enter the Coal mine you must press 'n'\n"+ 
-				"to make your way through the debris ";
+			textBuffer += "\nPress 'n' to go to the " + room_north + ".";
 
 			if(Input.GetKeyDown(KeyCode.N))
 			{
